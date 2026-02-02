@@ -1,31 +1,28 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 
 interface QuestionProps {
   onYes: () => void;
 }
 
 const Question: React.FC<QuestionProps> = ({ onYes }) => {
-  const [noBtnPosition, setNoBtnPosition] = useState({ top: '60%', left: '70%' });
+  const [noBtnStyle, setNoBtnStyle] = useState<React.CSSProperties>({});
   const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Initial random position slightly offset to avoid overlapping YES immediately if screen is small
-  useEffect(() => {
-    // Set initial position to be distinct from the YES button
-    setNoBtnPosition({ top: '60%', left: '70%' });
-  }, []);
 
   const moveButton = () => {
     if (containerRef.current) {
       const containerRect = containerRef.current.getBoundingClientRect();
-      const padding = 50; // Keep button away from edges
+      const padding = 50; 
       
-      const newTop = Math.random() * (containerRect.height - 100) + padding;
-      const newLeft = Math.random() * (containerRect.width - 100) + padding;
+      // Calculate safe area for the button to jump to
+      const newTop = Math.random() * (containerRect.height - 100);
+      const newLeft = Math.random() * (containerRect.width - 100);
 
-      setNoBtnPosition({ 
-        top: `${(newTop / containerRect.height) * 100}%`, 
-        left: `${(newLeft / containerRect.width) * 100}%` 
+      setNoBtnStyle({ 
+        position: 'absolute',
+        top: `${newTop}px`, 
+        left: `${newLeft}px`,
+        transition: 'all 0.2s ease-out'
       });
       setIsHovered(true);
     }
@@ -36,7 +33,7 @@ const Question: React.FC<QuestionProps> = ({ onYes }) => {
       ref={containerRef}
       className="relative w-full h-screen bg-pink-50 flex flex-col items-center justify-center overflow-hidden p-4"
     >
-      <div className="z-10 text-center mb-12 animate-fade-in-up max-w-2xl">
+      <div className="z-10 text-center mb-8 animate-fade-in-up max-w-2xl">
         <h1 className="text-4xl md:text-6xl font-handwriting text-red-600 mb-8 leading-tight drop-shadow-md">
           Krisha <span className="inline-block animate-bounce">💖</span>,<br />
           Will you be my Valentine?
@@ -50,7 +47,7 @@ const Question: React.FC<QuestionProps> = ({ onYes }) => {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center gap-8 z-20">
+      <div className="flex flex-col md:flex-row items-center justify-center gap-8 z-20">
         <button
           onClick={onYes}
           className="bg-green-500 hover:bg-green-600 text-white font-bold py-6 px-12 rounded-full text-3xl shadow-xl transform transition-transform hover:scale-125 focus:outline-none ring-4 ring-green-300 animate-pulse"
@@ -59,22 +56,17 @@ const Question: React.FC<QuestionProps> = ({ onYes }) => {
         </button>
 
         <button
-          style={{
-            position: 'absolute',
-            top: noBtnPosition.top,
-            left: noBtnPosition.left,
-            transition: 'all 0.2s ease-out'
-          }}
+          style={noBtnStyle}
           onMouseEnter={moveButton}
           onTouchStart={moveButton}
-          className="bg-gray-300 text-gray-500 font-bold py-2 px-4 rounded text-xs shadow-sm cursor-not-allowed hover:opacity-0"
+          className="bg-gray-300 text-gray-500 font-bold py-2 px-4 rounded text-xs shadow-sm cursor-not-allowed hover:opacity-0 whitespace-nowrap"
         >
           No 😢
         </button>
       </div>
       
       {isHovered && (
-        <div className="absolute bottom-10 text-pink-400 font-semibold animate-bounce">
+        <div className="absolute bottom-10 text-pink-400 font-semibold animate-bounce pointer-events-none">
             Nice try! You can't catch it! 🏃‍♀️💨
         </div>
       )}
