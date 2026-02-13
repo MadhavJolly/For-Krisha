@@ -1,15 +1,2 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
-}
-
-const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+// This file is empty because the app has been converted to a standalone index.html file.
+// You can use the code in index.html directly.

@@ -1,56 +1,326 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>For Krisha 💖</title>
+    
+    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Canvas Confetti for the celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600;700&display=swap');
-      
-      body {
-        font-family: 'Quicksand', sans-serif;
-        background-color: #ffe4e6;
-        overflow: hidden; /* Prevent scrolling when button runs away */
-      }
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600;700&display=swap');
 
-      .font-handwriting {
-        font-family: 'Pacifico', cursive;
-      }
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #ffe4e6;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
 
-      /* Custom animations */
-      @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-20px); }
-      }
-      .animate-float {
-        animation: float 3s ease-in-out infinite;
-      }
-      
-      .perspective-1000 {
-        perspective: 1000px;
-      }
-      
-      .transform-style-3d {
-        transform-style: preserve-3d;
-      }
+        .font-handwriting {
+            font-family: 'Pacifico', cursive;
+        }
+
+        /* Envelope 3D & Animation Styles */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+
+        .envelope-container {
+            transition: transform 0.7s ease-in-out;
+            transform-style: preserve-3d;
+        }
+        
+        .envelope-container.open {
+            transform: translateY(120px) scale(1.1);
+        }
+        
+        .envelope-container:hover:not(.open) {
+            transform: scale(1.05);
+        }
+
+        .flap {
+            transform-origin: top;
+            transition: transform 0.6s 0.2s ease-in-out, z-index 0.6s;
+            clip-path: polygon(0 0, 100% 0, 50% 55%);
+        }
+
+        .envelope-container.open .flap {
+            transform: rotateX(180deg);
+            z-index: 0; 
+        }
+
+        .card {
+            transition: transform 1s 0.8s ease-in-out, z-index 0s 0.8s;
+        }
+
+        .envelope-container.open .card {
+            transform: translateY(-180px);
+            z-index: 20;
+        }
+
+        .front-pocket {
+            clip-path: polygon(0 0, 50% 50%, 100% 0, 100% 100%, 0 100%);
+        }
+
+        /* Floating Hearts Animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* Utility classes for screen switching */
+        .hidden-screen {
+            display: none !important;
+        }
+        
+        .fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
+            pointer-events: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
-  <script type="importmap">
+<script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@18.3.1",
-    "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime",
-    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
-    "lucide-react": "https://esm.sh/lucide-react@0.344.0",
-    "react-confetti": "https://esm.sh/react-confetti@6.1.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/"
+    "react": "https://esm.sh/react@^19.2.4",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react-confetti": "https://esm.sh/react-confetti@^6.4.0"
   }
 }
 </script>
 </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<body class="h-screen w-full flex items-center justify-center relative">
+
+    <!-- BACKGROUND HEARTS -->
+    <div id="hearts-container" class="absolute inset-0 pointer-events-none overflow-hidden">
+        <!-- JS will populate this -->
+    </div>
+
+    <!-- STAGE 1: ENVELOPE -->
+    <div id="stage-envelope" class="flex flex-col items-center justify-center w-full h-full absolute top-0 left-0 transition-opacity duration-500">
+        
+        <div id="envelope-header" class="text-center mb-16 absolute top-20 w-full transition-all duration-700">
+            <h1 class="text-4xl md:text-5xl font-handwriting text-pink-600 mb-4 drop-shadow-sm">
+                A special delivery for Krisha 🐰
+            </h1>
+            <p class="text-pink-400 font-semibold animate-pulse">Click the envelope to open</p>
+        </div>
+
+        <div id="envelope" class="relative w-80 h-52 bg-transparent cursor-pointer perspective-1000 group">
+            <div class="envelope-container relative w-full h-full">
+                <!-- Back of Envelope -->
+                <div class="absolute inset-0 bg-red-800 rounded-md shadow-2xl"></div>
+
+                <!-- The Card -->
+                <div class="card absolute inset-x-4 top-4 bottom-4 bg-white rounded-md shadow-md flex flex-col items-center justify-center text-center p-4 z-10">
+                    <p class="font-handwriting text-2xl text-red-500 mb-2">Hey Krisha!</p>
+                    <p class="text-gray-600 text-sm font-medium leading-relaxed">
+                        I have something<br/>very important<br/>to ask you...
+                    </p>
+                    <div class="text-red-400 mt-2 animate-pulse">❤️</div>
+                </div>
+
+                <!-- Front Pocket -->
+                <div class="front-pocket absolute inset-0 z-30 bg-red-600 rounded-md pointer-events-none border-t border-red-700/20"></div>
+
+                <!-- Flap -->
+                <div class="flap absolute inset-0 z-40 bg-red-500 rounded-md border-b-4 border-black/5">
+                    <div class="absolute top-[45%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <div class="bg-red-200 rounded-full p-2 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-600 w-6 h-6"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5 4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STAGE 2: QUESTION -->
+    <div id="stage-question" class="hidden-screen flex-col items-center justify-center w-full h-full absolute top-0 left-0 bg-pink-50 p-4 fade-in">
+        <div class="z-10 text-center mb-8 max-w-2xl">
+            <h1 class="text-4xl md:text-6xl font-handwriting text-red-600 mb-8 leading-tight drop-shadow-md">
+                Krisha <span class="inline-block animate-bounce">💖</span>,<br />
+                Will you be my Valentine?
+            </h1>
+            <div class="w-full max-w-md mx-auto mb-8">
+                <img 
+                    src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmM5c2ZqZ2Z4eG9hOHY4eXoxbm54ZnZ4eXoxbm54ZnZ4eXoxbm54ZnZ4eXoxbm54ZnZ4eXoxbm54ZnZ4eXoxbm54ZnZ4eSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/cLS1cfxvGOPVpf9g3y/giphy.gif" 
+                    alt="Cute bear asking" 
+                    class="w-48 h-48 mx-auto object-contain rounded-full shadow-lg bg-white p-2"
+                />
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row items-center justify-center gap-8 z-20 w-full relative h-32">
+            <button
+                id="yes-btn"
+                class="bg-green-500 hover:bg-green-600 text-white font-bold py-6 px-12 rounded-full text-3xl shadow-xl transform transition-transform hover:scale-125 focus:outline-none ring-4 ring-green-300 animate-pulse z-20"
+            >
+                YES! 😍
+            </button>
+
+            <button
+                id="no-btn"
+                class="bg-gray-300 text-gray-500 font-bold py-2 px-4 rounded text-xs shadow-sm cursor-not-allowed hover:opacity-0 whitespace-nowrap transition-all duration-200"
+            >
+                No 😢
+            </button>
+        </div>
+        
+        <div id="nice-try-msg" class="absolute bottom-10 text-pink-400 font-semibold animate-bounce hidden">
+            Nice try! You can't catch it! 🏃‍♀️💨
+        </div>
+    </div>
+
+    <!-- STAGE 3: SUCCESS -->
+    <div id="stage-success" class="hidden-screen flex-col items-center justify-center w-full h-full absolute top-0 left-0 bg-gradient-to-b from-pink-200 to-red-100 p-4 text-center fade-in">
+        <div class="z-10 max-w-4xl bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border-4 border-pink-300 transform animate-[bounce_1s_infinite]">
+            <h1 class="text-5xl md:text-7xl font-handwriting text-red-600 mb-6">
+                WOHOOO! 🎉
+            </h1>
+            <p class="text-2xl md:text-3xl text-pink-600 font-bold mb-8">
+                I KNEW YOU WOULD SAY YES, KRISHA! 💖
+            </p>
+            
+            <div class="relative w-full max-w-lg mx-auto mb-8 rounded-xl overflow-hidden shadow-lg border-4 border-yellow-300">
+                <img 
+                    src="https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif" 
+                    alt="Mind Blown" 
+                    class="w-full h-auto"
+                />
+            </div>
+
+            <p class="text-xl text-gray-700 font-medium">
+                Get ready for the best Valentine's Day ever! 🌹🍫
+            </p>
+            <p class="text-sm text-gray-500 mt-4 italic">
+                (Screenshots permitted as evidence)
+            </p>
+        </div>
+
+        <div class="absolute bottom-0 w-full flex justify-center opacity-30 pointer-events-none">
+            <img src="https://media.giphy.com/media/LpDmM2wSt6Hm5fKJVa/giphy.gif" alt="Dancing Cat" class="h-32" />
+            <img src="https://media.giphy.com/media/LpDmM2wSt6Hm5fKJVa/giphy.gif" alt="Dancing Cat" class="h-32" />
+            <img src="https://media.giphy.com/media/LpDmM2wSt6Hm5fKJVa/giphy.gif" alt="Dancing Cat" class="h-32" />
+        </div>
+    </div>
+
+    <script>
+        // --- LOGIC ---
+        
+        // 1. Generate Floating Hearts in Background
+        const heartsContainer = document.getElementById('hearts-container');
+        for(let i=0; i<20; i++) {
+            const heart = document.createElement('div');
+            heart.innerHTML = '❤️';
+            heart.className = 'absolute animate-float text-pink-300';
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.top = Math.random() * 100 + '%';
+            heart.style.animationDelay = Math.random() * 5 + 's';
+            heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+            heartsContainer.appendChild(heart);
+        }
+
+        // 2. Envelope Logic
+        const envelopeEl = document.getElementById('envelope');
+        const envelopeHeader = document.getElementById('envelope-header');
+        const envelopeContainer = envelopeEl.querySelector('.envelope-container');
+        const stageEnvelope = document.getElementById('stage-envelope');
+        const stageQuestion = document.getElementById('stage-question');
+
+        envelopeEl.addEventListener('click', () => {
+            if(!envelopeContainer.classList.contains('open')) {
+                envelopeContainer.classList.add('open');
+                envelopeHeader.classList.add('opacity-0', '-translate-y-10');
+                
+                // Wait for animation, then switch pages
+                setTimeout(() => {
+                    stageEnvelope.classList.add('fade-out');
+                    setTimeout(() => {
+                        stageEnvelope.classList.add('hidden-screen');
+                        stageEnvelope.classList.remove('fade-out');
+                        stageQuestion.classList.remove('hidden-screen');
+                        stageQuestion.style.display = 'flex';
+                    }, 500);
+                }, 2000);
+            }
+        });
+
+        // 3. Question Logic (No Button Run Away)
+        const noBtn = document.getElementById('no-btn');
+        const yesBtn = document.getElementById('yes-btn');
+        const niceTryMsg = document.getElementById('nice-try-msg');
+        const stageSuccess = document.getElementById('stage-success');
+
+        function moveButton() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            // Calculate a safe random position
+            // Ensure it doesn't go off screen
+            const newX = Math.random() * (width - 150); // 150 padding
+            const newY = Math.random() * (height - 100); // 100 padding
+
+            noBtn.style.position = 'absolute';
+            noBtn.style.left = newX + 'px';
+            noBtn.style.top = newY + 'px';
+            
+            niceTryMsg.classList.remove('hidden');
+        }
+
+        noBtn.addEventListener('mouseover', moveButton);
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevent clicking on mobile
+            moveButton();
+        });
+
+        // 4. Success Logic
+        yesBtn.addEventListener('click', () => {
+            stageQuestion.style.display = 'none';
+            stageSuccess.classList.remove('hidden-screen');
+            stageSuccess.style.display = 'flex';
+            
+            // Fire Confetti
+            var duration = 15 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                var particleCount = 50 * (timeLeft / duration);
+                // since particles fall down, start a bit higher than random
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        });
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+    </script>
+</body>
 </html>
