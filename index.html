@@ -109,6 +109,14 @@
 </head>
 <body class="h-screen w-full flex items-center justify-center relative">
 
+    <!-- SOUND EFFECTS -->
+    <!-- Magic Chime for envelope -->
+    <audio id="sound-open" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3" preload="auto"></audio>
+    <!-- Swoosh for running button -->
+    <audio id="sound-swoosh" src="https://assets.mixkit.co/active_storage/sfx/1487/1487-preview.mp3" preload="auto"></audio>
+    <!-- Cheering for success -->
+    <audio id="sound-cheer" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
+
     <!-- BACKGROUND HEARTS -->
     <div id="hearts-container" class="absolute inset-0 pointer-events-none overflow-hidden">
         <!-- JS will populate this -->
@@ -228,6 +236,17 @@
     </div>
 
     <script>
+        // --- SOUNDS ---
+        const soundOpen = document.getElementById('sound-open');
+        const soundSwoosh = document.getElementById('sound-swoosh');
+        const soundCheer = document.getElementById('sound-cheer');
+
+        // Helper to safely play audio (handle browser autoplay policies)
+        function playAudio(audioEl) {
+            audioEl.currentTime = 0;
+            audioEl.play().catch(e => console.log("Audio play failed (user interaction needed first):", e));
+        }
+
         // --- LOGIC ---
         
         // 1. Generate Floating Hearts in Background
@@ -252,6 +271,9 @@
 
         envelopeEl.addEventListener('click', () => {
             if(!envelopeContainer.classList.contains('open')) {
+                // Play Sound
+                playAudio(soundOpen);
+
                 envelopeContainer.classList.add('open');
                 envelopeHeader.classList.add('opacity-0', '-translate-y-10');
                 
@@ -275,6 +297,9 @@
         const stageSuccess = document.getElementById('stage-success');
 
         function moveButton() {
+            // Play swoosh sound
+            playAudio(soundSwoosh);
+
             // Get current viewport dimensions
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
@@ -313,6 +338,9 @@
 
         // 4. Success Logic
         yesBtn.addEventListener('click', () => {
+            // Play Cheering
+            playAudio(soundCheer);
+
             stageQuestion.style.display = 'none';
             stageSuccess.classList.remove('hidden-screen');
             stageSuccess.style.display = 'flex';
