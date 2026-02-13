@@ -162,7 +162,7 @@
             </h1>
             <div class="w-full max-w-md mx-auto mb-8">
                 <img 
-                    src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmM5c2ZqZ2Z4eG9hOHY4eXoxbm54ZnZ4eXoxbm54ZnZ4eXoxbm54ZnZ4eXoxbm54ZnZ4eXoxbm54ZnZ4eXoxbm54ZnZ4eSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/cLS1cfxvGOPVpf9g3y/giphy.gif" 
+                    src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmM5c2ZqZ2Z4eG9hOHY4eXoxbm54ZnZ4eXoxbm54ZnZ4eXoxbm54ZnZ4eXoxbm54ZnZ4eXoxbm54ZnZ4eSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/cLS1cfxvGOPVpf9g3y/giphy.gif" 
                     alt="Cute bear asking" 
                     class="w-48 h-48 mx-auto object-contain rounded-full shadow-lg bg-white p-2"
                 />
@@ -192,15 +192,16 @@
 
     <!-- STAGE 3: SUCCESS -->
     <div id="stage-success" class="hidden-screen flex-col items-center justify-center w-full h-full absolute top-0 left-0 bg-gradient-to-b from-pink-200 to-red-100 p-4 text-center fade-in">
-        <div class="z-10 max-w-4xl bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border-4 border-pink-300 transform animate-[bounce_1s_infinite]">
-            <h1 class="text-5xl md:text-7xl font-handwriting text-red-600 mb-6">
+        <!-- Removed animate-bounce to stop it from going off screen -->
+        <div class="z-10 max-w-4xl w-full bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border-4 border-pink-300 transform">
+            <h1 class="text-4xl md:text-6xl font-handwriting text-red-600 mb-4">
                 WOHOOO! 🎉
             </h1>
-            <p class="text-2xl md:text-3xl text-pink-600 font-bold mb-8">
+            <p class="text-xl md:text-2xl text-pink-600 font-bold mb-6">
                 I KNEW YOU WOULD SAY YES, KRISHA! 💖
             </p>
             
-            <div class="relative w-full max-w-lg mx-auto mb-8 rounded-xl overflow-hidden shadow-lg border-4 border-yellow-300">
+            <div class="relative w-full max-w-sm mx-auto mb-6 rounded-xl overflow-hidden shadow-lg border-4 border-yellow-300">
                 <img 
                     src="https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif" 
                     alt="Mind Blown" 
@@ -208,18 +209,21 @@
                 />
             </div>
 
-            <p class="text-xl text-gray-700 font-medium">
+            <p class="text-lg text-gray-700 font-medium">
                 Get ready for the best Valentine's Day ever! 🌹🍫
             </p>
-            <p class="text-sm text-gray-500 mt-4 italic">
+            <p class="text-2xl text-pink-500 font-bold mt-4 font-handwriting">
+                You're my favourite person ever &lt;3
+            </p>
+            <p class="text-xs text-gray-500 mt-4 italic">
                 (Screenshots permitted as evidence)
             </p>
         </div>
 
         <div class="absolute bottom-0 w-full flex justify-center opacity-30 pointer-events-none">
-            <img src="https://media.giphy.com/media/LpDmM2wSt6Hm5fKJVa/giphy.gif" alt="Dancing Cat" class="h-32" />
-            <img src="https://media.giphy.com/media/LpDmM2wSt6Hm5fKJVa/giphy.gif" alt="Dancing Cat" class="h-32" />
-            <img src="https://media.giphy.com/media/LpDmM2wSt6Hm5fKJVa/giphy.gif" alt="Dancing Cat" class="h-32" />
+            <img src="https://media.giphy.com/media/LpDmM2wSt6Hm5fKJVa/giphy.gif" alt="Dancing Cat" class="h-24 md:h-32" />
+            <img src="https://media.giphy.com/media/LpDmM2wSt6Hm5fKJVa/giphy.gif" alt="Dancing Cat" class="h-24 md:h-32" />
+            <img src="https://media.giphy.com/media/LpDmM2wSt6Hm5fKJVa/giphy.gif" alt="Dancing Cat" class="h-24 md:h-32" />
         </div>
     </div>
 
@@ -271,15 +275,30 @@
         const stageSuccess = document.getElementById('stage-success');
 
         function moveButton() {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
+            // Get current viewport dimensions
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
             
-            // Calculate a safe random position
-            // Ensure it doesn't go off screen
-            const newX = Math.random() * (width - 150); // 150 padding
-            const newY = Math.random() * (height - 100); // 100 padding
+            // Get actual button dimensions
+            const btnRect = noBtn.getBoundingClientRect();
+            const btnWidth = btnRect.width;
+            const btnHeight = btnRect.height;
+            
+            // Safety margin to prevent touching edge
+            const margin = 20;
 
-            noBtn.style.position = 'absolute';
+            // Calculate max allowed positions
+            // We subtract button size and margin from viewport size
+            const maxX = viewportWidth - btnWidth - margin;
+            const maxY = viewportHeight - btnHeight - margin;
+
+            // Generate random positions within these strict bounds
+            // Math.max ensures we don't go negative if screen is tiny
+            const newX = margin + Math.random() * (maxX - margin);
+            const newY = margin + Math.random() * (maxY - margin);
+
+            // Use fixed position to break out of flex container and position relative to window
+            noBtn.style.position = 'fixed';
             noBtn.style.left = newX + 'px';
             noBtn.style.top = newY + 'px';
             
